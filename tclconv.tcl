@@ -79,9 +79,9 @@ namespace eval tclconv {
         set result {}
         foreach agp $args {
             foreach ag [split $agp { }] {
-                set tmplt "'{' + @convr@($ag) + '}'"
+                set tmplt "'{' + @convr@($ag) + '} '"
                 if {$isRuby} {
-                    set tmplt "'{' + $ag.to_s + '}'"
+                    set tmplt "'{' + $ag.to_s + '} '"
                 }
                 lappend result $tmplt
             }
