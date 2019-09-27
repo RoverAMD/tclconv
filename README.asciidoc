@@ -35,8 +35,27 @@ Output:
 Hello there, Tim!
 ----
 
+Same goes for Ruby:
+
+[source,bash]
+----
+tclsh tclconv.tcl ruby hello.tcl > hello_bindings.rb
+cat >>hellothere.rb<<EOF
+require_relative 'hello_bindings'
+
+puts greet('Tim')
+EOF
+ruby hellothere.rb
+----
+
+Output:
+
+[source]
+----
+Hello there, Tim!
+----
+
 === Limitations
-- Currently generates Python-only bindings (sorry, Ruby devs, will add Ruby support soon)
 - Currently all functions return strings and all of the accepted arguments must be strings too
 - Tcl dicts are not supported
 - The source implementation in Tcl must be shipped with the bindings, ``tclsh`` must also be present on the user's computer

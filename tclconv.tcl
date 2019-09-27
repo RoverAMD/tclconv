@@ -75,15 +75,60 @@ namespace eval tclconv {
         return [string map {{"} "\\\""} $str]
     }
     
-    proc joinCorrectly {args} {
+    proc joinCorrectly {args {isRuby 0}} {
         set result {}
         foreach agp $args {
             foreach ag [split $agp { }] {
                 set tmplt "'{' + $ag + '}'"
+                if {$isRuby} {
+                    set tmplt "'{' + $ag.to_s + '}'"
+                }
                 lappend result $tmplt
             }
         }
         return [join $result { + }]
+    }
+    
+    proc cgen_ruby {funcsDictL identity} {
+        set runnerFunc "_[expr {round(rand() * 999999)}]_tclkickstart_rb"
+        set codetemplate {
+require 'fileutils'
+        
+def @func@(what)
+    tempdir = '/tmp'
+    path = File.absolute_path(File.dirname($0)) + '/@identity@'
+    if ENV['OS'] == 'Windows_NT' then
+        path = path.gsub("\\", '/')
+        tempdir = ENV['TEMP'].to_s.gsub("\\", '/')
+    end
+    fn = tempdir + '/' + rand().to_s + '.tcl'
+    File.write(fn, "source \"" + path + "\"; puts [" + what + "]")
+    if ENV['OS'] == 'Windows_NT' then
+        fn = fn.gsub('/', "\\")
+    end
+    o = `tclsh "#{fn}"`
+    FileUtils.rm_rf(fn)
+    return o
+end
+        }
+        set codetemplate "[string map [list @func@ $runnerFunc @identity@ $identity] $codetemplate]\n\n"
+        foreach item $funcsDictL {
+            set funcres "def [dict get $item name] ("
+            set argsjoin {}
+            set cmda {}
+            foreach argument [dict get $item args] {
+                if {[llength $argument] > 1} {
+                    lappend argsjoin "[lindex $argument 0]='[tclconv::unquote [lindex $argument 1]]'"
+                } else {
+                    lappend argsjoin $argument
+                }
+                lappend cmda $argument
+            }
+            set funcres "$funcres[join $argsjoin {, }])"
+            set funcres "$funcres\n\treturn $runnerFunc ('[dict get $item orig] ' + [tclconv::joinCorrectly $cmda 1])\n\end\n\n"
+            set codetemplate "$codetemplate$funcres"
+        }
+        return $codetemplate
     }
     
     proc cgen_python {funcsDictL identity} {
