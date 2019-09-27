@@ -56,6 +56,7 @@ Hello there, Tim!
 ----
 
 === Limitations
+- Default values (optional arguments) ARE NOT SUPPORTED
 - Currently all functions return strings
 - Tcl dicts are not supported
 - The source implementation in Tcl must be shipped with the bindings, ``tclsh`` must also be present on the user's computer
