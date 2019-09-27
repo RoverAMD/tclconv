@@ -1,0 +1,45 @@
+== TclConv
+Automatically creates Python/Ruby bindings to Tcl code.
+
+=== Example
+Suppose you have ``hello.tcl``:
+
+[source,tcl]
+----
+proc greet {name} {
+	return "Hello there, $name!"
+}
+----
+
+When you run:
+
+[source,bash]
+----
+tclsh tclconv.tcl python hello.tcl > hello_bindings.py
+----
+
+You will get compatible Python bindings for ``hello.tcl``. There will be a function called ``greet`` which will take one argument and will return a string.
+
+The resulting functions can be used just like any normal Python functions:
+
+[source,python]
+----
+print(greet('Tim'))
+----
+
+_Don't forget to include hello_bindings.py first_
+
+Output:
+[source]
+----
+Hello there, Tim!
+----
+
+=== Limitations
+- Currently generates Python-only bindings (sorry, Ruby devs, will add Ruby support soon)
+- Currently all functions return strings and all of the accepted arguments must be strings too
+- Tcl dicts are not supported
+- The source implementation in Tcl must be shipped with the bindings, ``tclsh`` must also be present on the user's computer
+
+=== License
+As always, MIT License.
