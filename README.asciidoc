@@ -56,7 +56,7 @@ Hello there, Tim!
 ----
 
 === Limitations
-- Currently all functions return strings and all of the accepted arguments must be strings too
+- Currently all functions return strings
 - Tcl dicts are not supported
 - The source implementation in Tcl must be shipped with the bindings, ``tclsh`` must also be present on the user's computer
 

@@ -79,7 +79,7 @@ namespace eval tclconv {
         set result {}
         foreach agp $args {
             foreach ag [split $agp { }] {
-                set tmplt "'{' + $ag + '}'"
+                set tmplt "'{' + @convr@($ag) + '}'"
                 if {$isRuby} {
                     set tmplt "'{' + $ag.to_s + '}'"
                 }
@@ -133,10 +133,21 @@ end
     
     proc cgen_python {funcsDictL identity} {
         set runnerFunc "_[expr {round(rand() * 999999)}]_tclkickstart"
+        set convrFunc "_[expr {round(rand() * 999999)}]_tclconverttypes"
         set codetemplate {
 import os
 import subprocess
 import datetime
+
+def @convr@(tp):
+    result = str(tp)
+    if type(tp) is list:
+        result = ''
+        for element in tp:
+            result += '{' + @convr@(element) + '} '
+    elif type(tp) is str:
+        return tp
+    return result
 
 def @func@(what):
     tempdir = '/tmp'
@@ -172,7 +183,7 @@ def @func@(what):
             set funcres "$funcres\n\treturn $runnerFunc ('[dict get $item orig] ' + [tclconv::joinCorrectly $cmda])\n\n"
             set codetemplate "$codetemplate$funcres"
         }
-        return $codetemplate
+        return [string map [list @convr@ $convrFunc] $codetemplate]
     }
     
     proc convert {lines {lang ruby}} {
